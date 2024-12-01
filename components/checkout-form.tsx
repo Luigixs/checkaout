@@ -21,6 +21,7 @@ interface FormField {
 type CardBrand = 'visa' | 'mastercard' | 'amex' | 'discover' | 'diners' | 'jcb' | 'elo' | 'hipercard' | 'unknown'
 
 export default function CheckoutForm() {
+  console.log('CheckoutForm rendered');
   const [formFields, setFormFields] = useState<Record<string, FormField>>({
     name: { value: '', touched: false, error: null },
     email: { value: '', touched: false, error: null },
@@ -161,18 +162,21 @@ export default function CheckoutForm() {
         }),
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        throw new Error('Failed to save data');
+        throw new Error(data.error || 'Erro desconhecido ao processar o pagamento');
       }
 
-      console.log('Data saved successfully');
-      // The state changes are handled by the useEffect hook
+      console.log('Data saved successfully:', data);
+      setFormState('success')
+      setAnimationStep(1)
     } catch (error) {
       console.error('Error saving data:', error);
       setFormState('idle')
       toast({
         title: "Erro",
-        description: "Falha ao processar o pagamento. Tente novamente.",
+        description: error instanceof Error ? error.message : 'Falha ao processar o pagamento. Tente novamente.',
         variant: "destructive",
       })
     }
@@ -209,7 +213,7 @@ export default function CheckoutForm() {
           <div className="space-y-6">
             <div className="flex items-center gap-2">
               <Image
-                src="/file.png"
+                src="/file-3.png"
                 alt="Flask icon"
                 width={24}
                 height={24}
