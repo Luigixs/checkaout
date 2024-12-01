@@ -1,31 +1,48 @@
 import { google } from 'googleapis';
 
-const auth = new google.auth.GoogleAuth({
-  credentials: JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS || '{}'),
-  scopes: ['https://www.googleapis.com/auth/spreadsheets'],
-});
-
-const sheets = google.sheets({ version: 'v4', auth });
-
 export async function appendToSheet(values: string[]) {
   try {
-    const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
-    const range = 'A:E'; // Adjusted to match 5 fields
+    console.log('Iniciando configuração do Google Sheets...');
+    
+    // Validate credentials
+    if (!process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+      throw new Error('Credenciais do Google não encontradas');
+    }
 
+    const credentials = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS);
+    console.log('Credenciais parseadas com sucesso');
+
+    const auth = new google.auth.GoogleAuth({
+      credentials,
+      scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+    });
+
+    console.log('Auth configurado, inicializando cliente do Sheets...');
+    const sheets = google.sheets({ version: 'v4', auth });
+
+    const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
+    if (!spreadsheetId) {
+      throw new Error('ID da planilha não encontrado nas variáveis de ambiente');
+    }
+    console.log('ID da planilha encontrado:', spreadsheetId);
+
+    console.log('Enviando dados para o Google Sheets...');
     const response = await sheets.spreadsheets.values.append({
       spreadsheetId,
-      range,
+      range: 'A:E',
       valueInputOption: 'USER_ENTERED',
-      insertDataOption: 'INSERT_ROWS',
       requestBody: {
-        values: [values], // Wrap values in an array to create a new row
+        values: [values],
       },
     });
 
-    console.log('Dados adicionados com sucesso:', response.data);
+    console.log('Resposta do Google Sheets:', response.status, response.statusText);
     return response.data;
   } catch (error) {
-    console.error('Erro ao adicionar dados ao Google Sheets:', error);
+    console.error('Erro detalhado ao salvar no Google Sheets:', error);
+    if (error instanceof Error) {
+      throw new Error(`Erro ao salvar na planilha: ${error.message}`);
+    }
     throw error;
   }
 }
