@@ -8,6 +8,9 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 import { cn, formatCPF, formatPhone, formatCardNumber, formatExpiryDate, validateCPF, validateCardNumber, identifyCardBrand, validateExpiryDate } from "@/lib/utils"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useToast } from "@/hooks/use-toast"
+import { LoadingSpinner, SuccessCheck, Confetti } from "@/components/ui/animations"
+import { useRouter } from 'next/navigation'
 
 interface FormField {
   value: string
@@ -33,8 +36,11 @@ export default function CheckoutForm() {
   const [showCardFields, setShowCardFields] = useState(false)
   const [countryCode, setCountryCode] = useState('+55')
   const [cardBrand, setCardBrand] = useState<CardBrand>('unknown')
-  const [isProcessing, setIsProcessing] = useState(false)
-  const [isSuccess, setIsSuccess] = useState(false)
+  const [formState, setFormState] = useState<'idle' | 'processing' | 'success' | 'redirecting'>('idle')
+  const [animationStep, setAnimationStep] = useState(0)
+
+  const { toast } = useToast()
+  const router = useRouter()
 
   useEffect(() => {
     const requiredFields = ['name', 'email', 'phone']
@@ -43,6 +49,22 @@ export default function CheckoutForm() {
     )
     setShowCardFields(allRequiredFieldsFilled)
   }, [formFields])
+
+  useEffect(() => {
+    if (formState === 'processing') {
+      const timer = setTimeout(() => {
+        setFormState('success')
+        setAnimationStep(1)
+      }, 3000)
+      return () => clearTimeout(timer)
+    }
+    if (formState === 'success' && animationStep === 1) {
+      const timer = setTimeout(() => {
+        setAnimationStep(2)
+      }, 1500)
+      return () => clearTimeout(timer)
+    }
+  }, [formState, animationStep])
 
   const handleFieldChange = (field: string, value: string) => {
     let error = null
@@ -123,7 +145,7 @@ export default function CheckoutForm() {
   }
 
   const handleSubmit = async () => {
-    setIsProcessing(true)
+    setFormState('processing')
     try {
       const response = await fetch('/api/save-form-data', {
         method: 'POST',
@@ -144,27 +166,42 @@ export default function CheckoutForm() {
       }
 
       console.log('Data saved successfully');
-      setIsSuccess(true);
-      
-      // Reset isSuccess after 3 seconds
-      setTimeout(() => {
-        setIsSuccess(false);
-      }, 3000);
-
+      // The state changes are handled by the useEffect hook
     } catch (error) {
       console.error('Error saving data:', error);
-      // Handle error (e.g., show an error message to the user)
-    } finally {
-      setIsProcessing(false)
+      setFormState('idle')
+      toast({
+        title: "Erro",
+        description: "Falha ao processar o pagamento. Tente novamente.",
+        variant: "destructive",
+      })
     }
   }
 
   return (
     <Card className="max-w-[1000px] mx-auto relative">
       <CardContent className="p-6">
-        {isProcessing && (
-          <div className="absolute inset-0 bg-white bg-opacity-80 flex items-center justify-center z-50">
-            <div className="w-16 h-16 border-4 border-green-500 border-t-transparent rounded-full animate-spin"></div>
+        {formState !== 'idle' && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div className="fixed inset-0 bg-white/70 backdrop-blur-md"></div>
+            <div className="relative z-10 text-center">
+              {formState === 'processing' && <LoadingSpinner />}
+              {formState === 'success' && animationStep === 1 && (
+                <>
+                  <SuccessCheck />
+                  <Confetti />
+                </>
+              )}
+              {formState === 'success' && animationStep === 2 && (
+                <div className="space-y-4">
+                  <p className="text-2xl font-bold text-green-600">Pagamento confirmado</p>
+                  <div className="flex items-center justify-center space-x-2">
+                    <p className="text-lg text-gray-700">Estamos redirecionando...</p>
+                    <LoadingSpinner size="small" />
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         )}
         <div className="grid md:grid-cols-[1fr,1.5fr] gap-8">
@@ -262,18 +299,11 @@ export default function CheckoutForm() {
               <div className="flex items-center justify-between">
                 <Button 
                   className={cn("flex-grow", showCardFields ? 'bg-[#006400] hover:bg-[#005000]' : 'bg-[#98D8A0] hover:bg-[#88c890]')}
-                  disabled={!showCardFields || isProcessing}
+                  disabled={!showCardFields || formState !== 'idle'}
                   onClick={handleSubmit}
                 >
                   {showCardFields ? 'Finalizar Pagamento' : 'Iniciar Teste Grátis'}
                 </Button>
-                {isSuccess && (
-                  <div className="ml-2 text-green-500">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                )}
               </div>
               
               <div className="pt-8 border-t">

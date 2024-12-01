@@ -65,10 +65,25 @@ module.exports = {
 			from: { height: "var(--radix-accordion-content-height)" },
 			to: { height: 0 },
 		  },
+		  "success-bg": {
+			"0%": { transform: "scale(0)", opacity: 0 },
+			"100%": { transform: "scale(1)", opacity: 1 }
+		  },
+		  "success-check": {
+			"0%": { strokeDasharray: "0,52", strokeDashoffset: "52" },
+			"100%": { strokeDasharray: "52,52", strokeDashoffset: "0" }
+		  },
+		  "confetti": {
+			"0%": { transform: "translateY(-10%) rotate(0deg)", opacity: 1 },
+			"100%": { transform: "translateY(100%) rotate(720deg)", opacity: 0 }
+		  },
 		},
 		animation: {
 		  "accordion-down": "accordion-down 0.2s ease-out",
 		  "accordion-up": "accordion-up 0.2s ease-out",
+		  "success-bg": "success-bg 0.3s ease-in-out forwards",
+		  "success-check": "success-check 0.3s ease-in-out 0.3s forwards",
+		  "confetti": "confetti 5s ease-in-out infinite",
 		},
 	  },
 	},

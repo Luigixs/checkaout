@@ -6,7 +6,7 @@ import { Toaster } from "@/components/ui/toaster"
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Checkout Form',
+  title: 'Checkout AutomatikLabs',
   description: 'A checkout form for processing payments',
 }
 
