@@ -21,7 +21,6 @@ interface FormField {
 type CardBrand = 'visa' | 'mastercard' | 'amex' | 'discover' | 'diners' | 'jcb' | 'elo' | 'hipercard' | 'unknown'
 
 export default function CheckoutForm() {
-  console.log('CheckoutForm rendered');
   const [formFields, setFormFields] = useState<Record<string, FormField>>({
     name: { value: '', touched: false, error: null },
     email: { value: '', touched: false, error: null },
@@ -44,7 +43,7 @@ export default function CheckoutForm() {
   const router = useRouter()
 
   useEffect(() => {
-    const requiredFields = ['name', 'email', 'phone']
+    const requiredFields = ['name', 'email', 'emailConfirm', 'phone', 'document']
     const allRequiredFieldsFilled = requiredFields.every(
       field => formFields[field].value.trim() !== '' && !formFields[field].error
     )
@@ -82,7 +81,7 @@ export default function CheckoutForm() {
     } else if (field === 'document' && !validateCPF(value)) {
       error = 'CPF inválido'
     } else if (field === 'cardNumber') {
-      const brand = identifyCardBrand(value)
+      const brand = identifyCardBrand(value.replace(/\s/g, ''))
       setCardBrand(brand as CardBrand)
       if (!validateCardNumber(value)) {
         error = 'Número de cartão inválido'
@@ -213,7 +212,7 @@ export default function CheckoutForm() {
           <div className="space-y-6">
             <div className="flex items-center gap-2">
               <Image
-                src="/file-3.png"
+                src="/file.png"
                 alt="Flask icon"
                 width={24}
                 height={24}
@@ -226,7 +225,7 @@ export default function CheckoutForm() {
             
             <Button variant="outline" className="w-full justify-start gap-2">
               <div className="w-5 h-5 bg-gray-200 rounded" />
-              TESTE SEGURO
+              TESTE AUTOMATIK - 7D
             </Button>
 
             <div className="flex justify-center py-6">
