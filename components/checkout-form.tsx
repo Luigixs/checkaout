@@ -219,19 +219,19 @@ export default function CheckoutForm() {
                 className="w-6 h-6"
               />
               <h1 className="text-sm text-gray-700">
-                AutomatikLabs Free
+                Plano Trial
               </h1>
             </div>
             
             <Button variant="outline" className="w-full justify-start gap-2">
               <div className="w-5 h-5 bg-gray-200 rounded" />
-              TESTE AUTOMATIK - 7D
+              PLANO TRIAL - 7D
             </Button>
 
             <div className="flex justify-center py-6">
               <Image
                 src="/file.png"
-                alt="AutomatikLabs Free"
+                alt="Planos Gratis"
                 width={150}
                 height={150}
                 className="rounded object-cover"
