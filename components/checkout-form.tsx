@@ -240,7 +240,7 @@ export default function CheckoutForm() {
 
             <div className="space-y-2">
               <p className="text-sm text-center">
-                AutomatikLabs Free
+                7 DIAS GRATIS
               </p>
               <div className="flex justify-between font-medium">
                 <span>TOTAL</span>
