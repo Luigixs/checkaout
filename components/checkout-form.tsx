@@ -66,6 +66,15 @@ export default function CheckoutForm() {
     }
   }, [formState, animationStep])
 
+  useEffect(() => {
+    if (formState === 'success' && animationStep === 2) {
+      const timer = setTimeout(() => {
+        window.location.href = 'https://wa.me/556282010347?text=Ol%C3%A1%20Quero%20informa%C3%A7%C3%B5es%20e%20receber%20meu%20acesso%20gr%C3%A1tis%20de%207%20dias'
+      }, 2000)
+      return () => clearTimeout(timer)
+    }
+  }, [formState, animationStep])
+
   const handleFieldChange = (field: string, value: string) => {
     let error = null
     if (!value.trim()) {
@@ -199,7 +208,7 @@ export default function CheckoutForm() {
                 <div className="space-y-4">
                   <p className="text-2xl font-bold text-green-600">Pagamento confirmado</p>
                   <div className="flex items-center justify-center space-x-2">
-                    <p className="text-lg text-gray-700">Estamos redirecionando...</p>
+                    <p className="text-lg text-gray-700">Redirecionando para o WhatsApp...</p>
                     <LoadingSpinner size="small" />
                   </div>
                 </div>
@@ -313,7 +322,7 @@ export default function CheckoutForm() {
                 <h3 className="text-lg font-medium mb-2">Atendimento</h3>
                 <a 
                   href="mailto:automatiklabs62@gmail.com"
-                  className="text-sm text-gray-600 hover:text-gray-900"
+                  className="text-sm text-gray-600 ahover:text-gray-900"
                 >
                   automatiklabs62@gmail.com
                 </a>
