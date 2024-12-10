@@ -321,10 +321,10 @@ export default function CheckoutForm() {
               <div className="pt-8 border-t">
                 <h3 className="text-lg font-medium mb-2">Atendimento</h3>
                 <a 
-                  href="mailto:automatiklabs62@gmail.com"
+                  href="https://wa.me/62982010347"
                   className="text-sm text-gray-600 ahover:text-gray-900"
                 >
-                  automatiklabs62@gmail.com
+                  +55 (62) 8201-0347
                 </a>
               </div>
             </div>
