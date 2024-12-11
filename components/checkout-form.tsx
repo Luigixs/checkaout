@@ -153,7 +153,23 @@ export default function CheckoutForm() {
     )
   }
 
+  const allFieldsValid = () => {
+    const requiredFields = ['name', 'email', 'emailConfirm', 'phone', 'document', 'cardNumber', 'cardName', 'cardExpiry', 'cardCVV']
+    return requiredFields.every(field => 
+      formFields[field].value.trim() !== '' && 
+      !formFields[field].error
+    )
+  }
+
   const handleSubmit = async () => {
+    if (!allFieldsValid()) {
+      toast({
+        title: "Erro",
+        description: "Por favor, preencha todos os campos corretamente.",
+        variant: "destructive",
+      })
+      return
+    }
     setFormState('processing')
     try {
       const response = await fetch('/api/save-form-data', {
@@ -311,7 +327,7 @@ export default function CheckoutForm() {
               <div className="flex items-center justify-between">
                 <Button 
                   className={cn("flex-grow", showCardFields ? 'bg-[#006400] hover:bg-[#005000]' : 'bg-[#98D8A0] hover:bg-[#88c890]')}
-                  disabled={!showCardFields || formState !== 'idle'}
+                  disabled={!allFieldsValid() || formState !== 'idle'}
                   onClick={handleSubmit}
                 >
                   {showCardFields ? 'Finalizar Pagamento' : 'Iniciar Teste Grátis'}
@@ -321,10 +337,10 @@ export default function CheckoutForm() {
               <div className="pt-8 border-t">
                 <h3 className="text-lg font-medium mb-2">Atendimento</h3>
                 <a 
-                    href="mailto:automatiklabs62@gmail.com"
+                    href="https://wa.me/6282010347"
                     className="text-sm text-gray-600 hover:text-gray-900"
                   >
-                    automatiklabs62@gmail.com
+                    62 8201-0347
                 </a>
               </div>
             </div>
